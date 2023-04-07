@@ -17,8 +17,31 @@ public class PessoaController {
         response.getWriter().println("Teste");
 
     }
+    
+    @RequestMapping(method = RequestMethod.GET, value = "/doEditarPage")
+    public void doEditarPage(HttpServletRequest request, HttpServletResponse response) throws IOException{
+        var id = Integer.parseInt(request.getParameter("id"));
+        var pDAO = new PessoaDAO();
+        response.setContentType("text/HTML");
 
-    @RequestMapping( method = RequestMethod.POST, value = "/excluir")
+        Pessoa p = pDAO.getPessoaById(id);
+
+        var writer = response.getWriter();
+
+        writer.println("<html>" +
+                    "<body>" +
+                    "<form action='doAtualizar' method='post'>");
+            writer.println("<input type='hidden' name='id' value='"+p.getId()+"'>");
+            writer.println("<input type='text' name='nome' value='"+p.getNome()+"'>");
+            writer.println("<input type='number' name='idade' value='"+p.getIdade()+"'>");
+
+            writer.println("<button type='submit'>Enviar</button");
+            writer.println("</form>" +
+            "</body>" +
+            "<html>");
+    }   
+
+    @RequestMapping( method = RequestMethod.GET, value = "/doExcluir")
     public void excluirPessoa(HttpServletRequest request, HttpServletResponse response) throws IOException{
         var p = new Pessoa();
         // var nome = request.getParameter("nome");
@@ -37,24 +60,19 @@ public class PessoaController {
         writer.println("Excluido com sucesso");
     }
 
-    @RequestMapping( method = RequestMethod.POST, value = "/alterar")
-    public void alterarPessoa(HttpServletRequest request, HttpServletResponse response) throws IOException{
-        var p = new Pessoa();
+    @RequestMapping( method = RequestMethod.POST, value = "/doAtualizar")
+    public void doAtualizar(HttpServletRequest request, HttpServletResponse response) throws IOException{
+        
         var nome = request.getParameter("nome");
         var idade = Integer.parseInt(request.getParameter("idade"));
         var id = Integer.parseInt(request.getParameter("id"));
 
-
-        p.setNome(nome);
-        p.setIdade(idade);
-        p.setId(id);
+        var p = new Pessoa(id, nome, idade);
 
         PessoaDAO pDAO = new PessoaDAO();
 
-        pDAO.excluirPessoa(p);
-        response.setContentType("text/HTML");
-        var writer = response.getWriter();
-        writer.println("Deu certo");
+        pDAO.alterarPessoa(p);
+        
 
     }
 
@@ -74,16 +92,51 @@ public class PessoaController {
 
         var writer = response.getWriter();
 
-        var listarPessoas = pDAO.listarPessoas();
-
-        for(var t1:listarPessoas){
-            writer.println("<hr /> <p>" +t1.getNome() + "</p>");
-            writer.println("<p>" +t1.getIdade() + "</p>");
-            writer.println("<p>" + "<a href=" + "excluir.html" + ">" + "Excluir" + "</a>" + "</p>");
-        }
+        writer.println("Cadastro feito com sucesso!");
 
         //writer.println("Verifique se atualizou o banco");
 
     }
+
+    @RequestMapping(method = RequestMethod.GET, value = "/doListar")
+    public void listarPessoas(HttpServletRequest request, HttpServletResponse response) throws IOException{
+        var pDAO = new PessoaDAO();
+        var writer = response.getWriter();
+        response.setContentType("text/HTML");
+
+        var listarPessoas = pDAO.listarPessoas();
+
+        for(var t1:listarPessoas){
+            writer.println("<h2>Nome: " + t1.getNome() + "</h2>");
+            writer.println("<p> Idade: " + t1.getIdade() + "</p> </hr>");
+            writer.println("<a href='doEditarPage?id="+t1.getId()+"'>Editar</a>");
+            writer.println("<a href='doExcluir?id="+t1.getId()+"'>Excluir</a>");
+           
+        }
+        
+
+    }
+
+    @RequestMapping(value = "/doBuscar", method = RequestMethod.POST)
+        public void buscarPessoa(HttpServletRequest request, HttpServletResponse response) throws IOException {
+            var id = Integer.parseInt(request.getParameter("id"));
+
+            var pDAO = new PessoaDAO();
+
+            Pessoa p = pDAO.getPessoaById(id);
+            response.setContentType("text/HTML");
+
+            var writer = response.getWriter();
+            writer.println("<html>");
+            writer.println("<body>");
+            if (p != null){
+                writer.println("<h2>Nome: " + p.getNome() + "</h2>");
+            writer.println("<p> Idade: " + p.getIdade() + "</p> </hr>");
+            }else{
+                writer.println("<p> Não encontrado </p>");
+            }
+            writer.println("</body>");
+            writer.println("</html>");
+        }
 
 }

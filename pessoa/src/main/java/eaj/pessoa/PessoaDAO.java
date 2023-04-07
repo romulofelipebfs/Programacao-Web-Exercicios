@@ -63,6 +63,34 @@ public class PessoaDAO {
 
     }
 
+    public Pessoa getPessoaById(int id){
+        Connection connection = null;
+        PreparedStatement stmt = null;
+        ResultSet rs = null;
+        Pessoa p = null;
+
+        try {
+            connection = Conexao.getConnection();
+
+            stmt = connection.prepareStatement("select * from pessoa where id = ?");
+            stmt.setInt(1, id);
+
+            rs = stmt.executeQuery();
+
+            while (rs.next()) {
+                p = new Pessoa(rs.getInt("id"), rs.getString("nome"), rs.getInt("idade"));
+                //p.setIdade(rs.getInt("idade"));
+                //p.setNome(rs.getString("nome"));
+            }
+            connection.close();
+
+        } catch (Exception ex) {
+            // response.getWriter().append("Connection Failed! Check output console");
+        }
+        
+        return p;
+    }
+
     public List<Pessoa> listarPessoas(){
         Connection connection = null;
         PreparedStatement stmt = null;
