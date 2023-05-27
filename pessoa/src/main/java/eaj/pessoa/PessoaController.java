@@ -6,8 +6,11 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 
+import jakarta.servlet.ServletException;
+import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpSession;
 
 @Controller
 public class PessoaController {
@@ -57,7 +60,8 @@ public class PessoaController {
         pDAO.excluirPessoa(p);
         response.setContentType("text/HTML");
         var writer = response.getWriter();
-        writer.println("Excluido com sucesso");
+       // writer.println("Excluido com sucesso");
+        response.sendRedirect("doListar");
     }
 
     @RequestMapping( method = RequestMethod.POST, value = "/doAtualizar")
@@ -72,6 +76,8 @@ public class PessoaController {
         PessoaDAO pDAO = new PessoaDAO();
 
         pDAO.alterarPessoa(p);
+        response.sendRedirect("doListar");
+
         
 
     }
@@ -92,7 +98,8 @@ public class PessoaController {
 
         var writer = response.getWriter();
 
-        writer.println("Cadastro feito com sucesso!");
+        response.sendRedirect("doListar");
+
 
         //writer.println("Verifique se atualizou o banco");
 
@@ -139,4 +146,59 @@ public class PessoaController {
             writer.println("</html>");
         }
 
+        @RequestMapping(method = RequestMethod.POST, value = "/doLogin")
+        public void doLogin(HttpServletRequest request, HttpServletResponse response) throws IOException{
+            String login = request.getParameter("login");
+            String password = request.getParameter("password");
+
+            if(login.equals("romulo") && password.equals("123")){
+                HttpSession session = request.getSession();
+                session.setAttribute("logado", true);
+                response.sendRedirect("/doTestes");
+
+            }else{
+                response.sendRedirect("login.html");
+
+
+            }
+
+
+        }
+
+        @RequestMapping(value = "/doTestes", method = RequestMethod.GET)
+        public void doTestes(HttpServletRequest request, HttpServletResponse response) throws IOException {
+    
+            HttpSession session = request.getSession();
+    
+            String pessoa = request.getParameter("pessoa");
+            
+            Cookie c = new Cookie("nome", pessoa);
+            c.setMaxAge(60);
+
+            response.addCookie(c);
+
+            Cookie[] cookies = request.getCookies();
+
+            for (Cookie c1: cookies){
+                response.getWriter().println(c1.getValue());
+            }
+
+            Boolean logado = (Boolean)session.getAttribute("logado");
+
+            if(logado != null && logado == true){
+                response.getWriter().println("Logado");
+            }else{
+                response.getWriter().println("Deslogado");
+
+            }
+
+        }
+
+        @RequestMapping(value = "/aula", method = RequestMethod.GET)
+        public void exemploRedirecionar(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
+
+         response.getWriter().println("HOJE TEM AULA");
+
+    }
+ 
 }

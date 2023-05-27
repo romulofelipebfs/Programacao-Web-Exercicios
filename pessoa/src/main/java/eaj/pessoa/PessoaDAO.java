@@ -46,7 +46,7 @@ public class PessoaDAO {
     }
 
     public void cadastrarPessoa(Pessoa p){
-        Connection connection = null;
+        Connection connection = null;;
         PreparedStatement stmt = null;
         try{
             connection = Conexao.getConnection();

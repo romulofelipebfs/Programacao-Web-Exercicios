@@ -1,4 +1,4 @@
-package eaj.pessoa;
+package com.login.Login;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -6,10 +6,10 @@ import org.springframework.boot.web.servlet.ServletComponentScan;
 
 @SpringBootApplication
 @ServletComponentScan
-public class PessoaApplication {
+public class LoginApplication {
 
 	public static void main(String[] args) {
-		SpringApplication.run(PessoaApplication.class, args);
+		SpringApplication.run(LoginApplication.class, args);
 	}
 
 }
